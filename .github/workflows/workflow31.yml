@@ -1,0 +1,28 @@
+name: deploy-toy-website-31
+
+on: [workflow_dispatch]
+
+permissions:                     # You need to grant permission for your workflow to work with authentication tokens.
+  id-token: write
+  contents: read
+
+env:
+    AZURE_RESOURCEGROUP_NAME: rvv-ex30 # Variable
+    ENVIRONMENT: nonprod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2 # To check out your code. The "uses" keyword indicates you want to use a pre-defined action named actions/checkout.
+      - uses: azure/login@v1      # Pre-defined action that handles the sign-in process to Azure.
+        with:                     # The azure/login action requires that you provide three pieces of information to use a workload identity:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - uses: azure/arm-deploy@v1
+        with:
+          deploymentName: ${{ github.run_number }}
+          resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
+          template: ./deploy/main31.bicep
+          parameters: environmentType=${{ env.ENVIRONMENT }}

@@ -1,0 +1,64 @@
+name: deploy-rvv-website
+
+on:
+  workflow_dispatch:
+    inputs:
+      resourceGroupName:
+        description: "Target resource group name."
+        required: true
+      location:
+        description: "Target Azure region."
+        required: true
+
+permissions:                     # You need to grant permission for your workflow to work with authentication tokens.
+  id-token: write
+  contents: read
+
+env:
+  ENVIRONMENT: nonprod
+  templateFile: ./deploy/main31.bicep
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2 # To check out your code. The "uses" keyword indicates you want to use a pre-defined action named actions/checkout.
+
+      - uses: azure/login@v1      # Pre-defined action that handles the sign-in process to Azure.
+        with:                     # The azure/login action requires that you provide three pieces of information to use a workload identity:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Get-AzResourceGroup -name '${{ github.event.inputs.resourceGroupName }}' -ErrorVariable notPresent -ErrorAction SilentlyContinue
+            if ($notPresent) {
+              write-host "Resource group ${{ github.event.inputs.resourceGroupName }} does not exists. Creating resource group..."
+              New-AzResourceGroup -name '${{ github.event.inputs.resourceGroupName }}' -location '${{ github.event.inputs.location }}'
+            } else {
+              write-host "Resource group ${{ github.event.inputs.resourceGroupName }} already exists."
+            }
+          azPSVersion: "latest"
+
+  deploy:
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2 # To check out your code. The "uses" keyword indicates you want to use a pre-defined action named actions/checkout.
+
+      - uses: azure/login@v1      # Pre-defined action that handles the sign-in process to Azure.
+        with:                     # The azure/login action requires that you provide three pieces of information to use a workload identity:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - uses: azure/arm-deploy@v1
+        with:
+          deploymentName: ${{ github.run_number }}
+          resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+          template: '${{ env.templateFile }}'
+          parameters: environmentType=${{ env.ENVIRONMENT }}
