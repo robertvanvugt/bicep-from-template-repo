@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run Bicep linter
-        run: az bicep build --file deploy/main34.bicep
+        run: az bicep build --file deploy/main35.bicep
 
   validate:
     runs-on: ubuntu-latest
@@ -40,7 +40,7 @@ jobs:
       with:
         deploymentName: ${{ github.run_number }}
         resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
-        template: ./deploy/main34.bicep
+        template: ./deploy/main35.bicep
         parameters: environmentType=${{ env.ENVIRONMENT_TYPE }}
         deploymentMode: Validate
 
@@ -63,7 +63,7 @@ jobs:
       with:
         failOnStdErr: false
         resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
-        template: deploy/main34.bicep
+        template: deploy/main35.bicep
         parameters: >
           environmentType=${{ env.ENVIRONMENT_TYPE }}
         additionalArguments: --what-if
@@ -91,7 +91,7 @@ jobs:
         failOnStdErr: false
         deploymentName: ${{ github.run_number }}
         resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
-        template: ./deploy/main34.bicep
+        template: ./deploy/main35.bicep
         parameters: environmentType=${{ env.ENVIRONMENT_TYPE }}
 
   smoke-test:
