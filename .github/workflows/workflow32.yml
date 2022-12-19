@@ -12,11 +12,11 @@ on:
         description: "Target Azure region."
         required: true
         default: westeurope
-  push:
-    branches:
-      - main
-    paths:
-      - 'deploy/**'
+# push:
+#    branches:
+#      - main
+#    paths:
+#      - 'deploy/**'
 
 permissions:                     # You need to grant permission for your workflow to work with authentication tokens.
   id-token: write
