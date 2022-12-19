@@ -24,6 +24,7 @@ jobs:
 
   validate:
     runs-on: ubuntu-latest
+    environment: website
     steps:
     - uses: actions/checkout@v2
 
@@ -45,6 +46,7 @@ jobs:
 
   preview:
     runs-on: ubuntu-latest
+    environment: website
     needs: [lint, validate]
     steps:
     - uses: actions/checkout@v2
