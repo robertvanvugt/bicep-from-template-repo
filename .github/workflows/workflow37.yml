@@ -4,7 +4,7 @@ concurrency: toy-company
 on:
   push:
     branches:
-      - main
+      - qa
   workflow_dispatch:
 
 jobs:
