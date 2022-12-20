@@ -2,9 +2,10 @@ name: ex-35-deploy-toy-website-test
 concurrency: toy-company
 
 on:
-  push:
-    branches:
-      - main
+  #push:
+  #  branches:
+  #    - main
+  workflow_dispatch:
 
 permissions:
   id-token: write
